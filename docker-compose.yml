@@ -1,0 +1,51 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: mariadb
+    restart: always
+    volumes: 
+      - ./databases:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+
+#  adminer:
+#    image: adminer
+#    restart: always
+#    ports:
+#      - 8080:8080
+  
+  app:
+    image: nextcloud
+    ports:
+      - 80:80
+    links:
+      - db
+    volumes:
+      - ./nextcloud:/var/www/html
+    restart: always
+
+  onlyoffice:
+    image: onlyoffice/documentserver
+    restart: always
+    volumes: 
+      - ./onlyoffice/logs:/var/log/onlyoffice
+      - ./onlyoffice/data:/var/www/onlyoffice/Data
+      - ./onlyoffice/lib:/var/lib/onlyoffice
+      - ./onlyoffice/db:/var/lib/postgresql
+    ports: 
+      - 8443:80
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
+    ports: 
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+
+# docker pull docker.elastic.co/elasticsearch/elasticsearch:7.1.1
